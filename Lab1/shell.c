@@ -26,15 +26,15 @@ int read_command(char *command, char *parameters[]) {
         return 1;
     }
 
-    strcpy(command, token); // Aqui armazenamos o comando
-    printf("Comando: %s\n", command);
-
+    strcpy(command, token); // Armazena o comando
 
     int param_index = 0;
     while ((token = strtok(NULL, " ")) != NULL) {
-        parameters[param_index++] = token;
+        parameters[param_index] = token;
+        param_index++;
     }
-    parameters[param_index] = NULL;
+
+    parameters[param_index] = NULL; // Marca o fim da lista de parâmetros
 
     return 0;
 }
@@ -46,14 +46,22 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         type_prompt("@"); // Exibe o prompt
-        read_command(command, parameters);
+        if (read_command(command, parameters) != 0) {
+            continue; // Trate os erros de entrada e continue
+        }
 
         if (fork() != 0) { // Cria um processo filho
             // Código do pai
             waitpid(-1, &status, 0); // Aguarda o filho sair
         } else {
             // Código do filho
-            execve(command, parameters, NULL); // Executa o comando
+            printf("Comando: %s\n", command);
+            printf("Parâmetros: \n");
+            for (int i = 0; parameters[i] != NULL; i++) {
+                printf("%s, ", parameters[i]);
+            }
+            printf("\n");
+            execvp(command, parameters); // Executa o comando
             perror("Erro ao executar o comando"); // Se execvp falhar
             exit(1);
         }
