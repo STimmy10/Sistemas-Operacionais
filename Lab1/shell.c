@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
             // Código do filho
             execve(command, parameters, NULL); // Executa o comando command com os parâmetros parameters
             perror(execvp(command, parameters)); // Se execve falhar (o programa não está no diretório atual), roda o programa com o caminho absoluto
+            perror("Erro ao executar o comando"); // Se execvp falhar, exibe uma mensagem de erro
             exit(1);
         }
     }
