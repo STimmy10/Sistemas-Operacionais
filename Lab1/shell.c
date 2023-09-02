@@ -28,9 +28,20 @@ int read_command(char *command, char *parameters[]) {
 
     strcpy(command, token); // Armazena o comando
 
+<<<<<<< HEAD
     int param_index = 0;
     while ((token = strtok(NULL, " ")) != NULL) {
         parameters[param_index] = token;
+=======
+    int param_index = 1;
+    while ((token = strtok(NULL, " ")) != NULL) {
+        parameters[param_index] = (char *)malloc(strlen(token) + 1);
+        if (parameters[param_index] == NULL) {
+            perror("Erro na alocação de memória");
+            return 1;
+        }
+        strcpy(parameters[param_index], token);
+>>>>>>> c716b3e (Shell funcionando, com porém)
         param_index++;
     }
 
@@ -53,6 +64,11 @@ int main(int argc, char *argv[]) {
         if (fork() != 0) { // Cria um processo filho
             // Código do pai
             waitpid(-1, &status, 0); // Aguarda o filho sair
+
+            // Libere a memória alocada para os parâmetros
+            for (int i = 1; parameters[i] != NULL; i++) {
+                free(parameters[i]);
+            }
         } else {
             // Código do filho
             printf("Comando: %s\n", command);
