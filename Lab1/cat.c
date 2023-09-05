@@ -1,27 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_SIZE 200
 
-/*corrigir porque ele ta printando 2x cada linha do arquivo*/
+#define MAXSIZE 200
 
-int main(int argc, char*argv[]){
-    for(int i =i; i<argc; i++){
+int main(int argc, char *argv[]){
+    for(int i = 1; i < argc; i++){
         FILE *arquivo;
+        
         arquivo = fopen(argv[i], "r");
         
+        char buffer[MAXSIZE];
+
         if(!arquivo){
-            printf("Erro ao abrir o arquivo");
-            exit(2);
+            printf("Erro ao abrir arquivo");
+            exit(1);
         }
-    
-        char buffer[MAX_SIZE];
-    
         while(!feof(arquivo)){
             fscanf(arquivo, "%s", buffer);
             printf("%s\n", buffer);
         }
+        fclose(arquivo);
     }
-
     return 0;
 }
