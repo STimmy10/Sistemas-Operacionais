@@ -1,0 +1,48 @@
+Resultados Lab2-Exercício 1- Sistemas Operacionais
+
+Número de Trabalhadores: 10
+Tamanho Vetor: 10000
+Tempo de execução: 0.000555 seg
+Soma total: 100000
+//
+
+Número de Trabalhadores: 100
+Tamanho Vetor: 10000
+Tempo de execução: 0.004541 seg
+Soma total: 100000
+//
+
+Número de Trabalhadores: 5
+Tamanho Vetor: 10000
+Tempo de execução: 0.000345 seg
+Soma total: 100000
+//
+
+Número de Trabalhadores: 20
+Tamanho Vetor: 10000
+Tempo de execução: 0.000891 seg
+Soma total: 100000
+//
+
+Número de Trabalhadores: 50
+Tamanho Vetor: 10000
+Tempo de execução: 0.001982 seg
+Soma total: 100000
+//
+
+Número de Trabalhadores: 50
+Tamanho Vetor: 100000
+Tempo de execução: 0.002525 seg
+Soma total: 1000000
+//
+
+Número de Trabalhadores: 10
+Tamanho Vetor: 1000000
+Tempo de execução: 0.004139 seg
+Soma total: 10000000
+//
+
+Número de Trabalhadores: 100
+Tamanho Vetor: 1000000
+Tempo de execução: 0.006567 seg
+Soma total: 10000000
