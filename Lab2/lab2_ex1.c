@@ -1,14 +1,13 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <sys/ipc.h>
-#include <time.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define NUM_TRAB 10000
+#define NUM_TRAB 10
 #define TAM_MAX 10000
 #define TAM_PARTES TAM_MAX / NUM_TRAB
 
@@ -22,7 +21,7 @@ int main(void){
     long int somaTotal = 0;
     int segmento;
 
-    //Estruturas para medir tempo de execução
+    //Estrutura para calcular tempo de execução
     struct timeval start_time, end_time;
     gettimeofday(&start_time, NULL);
 
@@ -38,7 +37,7 @@ int main(void){
         puts("Erro ao criar a memória compartilhada2");
         exit(1);
     }
-    //Alocando vetor geral
+
     for(int i =0; i<TAM_MAX; i++){
         vetor->valorInicial[i] = 5;
     }
@@ -72,15 +71,15 @@ int main(void){
 
     }
 
-   
     gettimeofday(&end_time, NULL);
-
     double execution_time = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_usec - start_time.tv_usec) / 1000000.0;
+
     int numTrab = NUM_TRAB;
     int tamVet = TAM_MAX;
+
     printf("Número de Trabalhadores: %d\n", numTrab);
     printf("Tamanho Vetor: %d\n", tamVet);
-    printf("Tempo de execução: %.6f seg\n", execution_time);
+    printf("Tempo de execução: %.8f seg\n", execution_time);
     printf("Soma total: %d\n", somaTotal);
 
     // Libera a memória compartilhada

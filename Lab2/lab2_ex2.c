@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #define NUM_TRAB 10
-#define TAM_MAX 10
+#define TAM_MAX 100
 
 int opera(int a){
     return (a*2) + 2;
@@ -14,20 +14,20 @@ int opera(int a){
 
 int main(int argc, char* argv[]) {
     int status = 0;
-    int shmid;
+    int segmento;
     int *vetCompartilhado;
     pid_t worker1, worker2;
     int resultado;
 
     // Criação da memória compartilhada
-    shmid = shmget(IPC_PRIVATE, TAM_MAX * sizeof(int), IPC_CREAT);
-    if (shmid == -1) {
+    segmento = shmget(IPC_PRIVATE, TAM_MAX * sizeof(int), IPC_CREAT | 0666);
+    if (segmento == -1) {
         perror("Erro ao criar a memória compartilhada");
         exit(1);
     }
 
     // Associação da memória compartilhada ao espaço de endereço do processo
-    vetCompartilhado = (int*)shmat(shmid, NULL, 0);
+    vetCompartilhado = (int*)shmat(segmento, NULL, 0);
     if (vetCompartilhado == (int*)-1) {
         perror("Erro ao anexar a memória compartilhada");
         exit(1);

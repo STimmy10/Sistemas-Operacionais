@@ -3,9 +3,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#define TAM_MAX 900000
-
-
+#define TAM_MAX 10000
 
 int main(void){
     int vetor[TAM_MAX];
@@ -27,7 +25,7 @@ int main(void){
     double execution_time = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_usec - start_time.tv_usec) / 1000000.0;
 
     printf("Soma Total: %d\n", somaVet);
-    printf("Tempo de execução: %.6f seg\n", execution_time);
+    printf("Tempo de execução sequencial: %.6f seg\n", execution_time);
 
     return 0;
 
