@@ -20,6 +20,7 @@ int main(void){
     InfoVetor *vetor;
     long int somaTotal = 0;
     int segmento;
+    int status = 0;
 
     //Estrutura para calcular tempo de execução
     struct timeval start_time, end_time;
@@ -62,10 +63,9 @@ int main(void){
             puts("Erro ao criar a memória compartilhada2");
             exit(1);
         }
+        waitpid(pid, &status, 0);
     }
-    for (int i = 0; i < NUM_TRAB; i++) {
-        wait(NULL);
-    }
+    
     for(int l = 0; l < NUM_TRAB; l++){
         somaTotal+= vetor->somaSegmento[l];
 
