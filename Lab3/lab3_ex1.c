@@ -1,55 +1,70 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
-#define NUM_THREADS 3
-#define TAM_MAX 30
+#define TAM_MAX 10000000
+#define NUM_THREADS 100
 #define TAM_PARTES TAM_MAX / NUM_THREADS
 
-void *operaVet(void *threadid);
+int vetorGeral[TAM_MAX];
+int vetorSeqGeral[TAM_MAX];
 
-typedef struct dadosVet{
-    int valoresVet[TAM_MAX];
-    int somaProcesso[NUM_THREADS];
-}DadosVet;
+void *operaVet(void *threadID){
+    int thread_id = *((int *)threadID);
+    int comeco = thread_id * (TAM_PARTES);
+    int fim = comeco + (TAM_PARTES);
+    int somaTemp = 0;
 
-DadosVet vetorGeral;
-
-int main(void){
-    pthread_t threads[NUM_THREADS];
-    int i = 0;
-    
-    for(i=0; i<TAM_MAX;i++){
-        vetorGeral.valoresVet[i] = 5;
+    for(int i = comeco; i < fim; i++){
+        vetorGeral[i] *= 2;
+        somaTemp += vetorGeral[i];
     }
     
-    for(i = 0; i<NUM_THREADS; i++){
-
-        pthread_create(&threads[i], NULL, operaVet,(void*)i);
-    }
-    for(i = 0; i<NUM_THREADS;i++){
-        pthread_join(threads[i], NULL);
-    }
-    
-
-    for(i = 0; i<NUM_THREADS; i++){
-        printf("Thread %d com soma: %d\n", i, vetorGeral.somaProcesso[i]);
-    }
-    return 0; 
+    return (void *)somaTemp;
 }
 
-void *operaVet(void *threadid){
-    
-    for(int i = 0; i<NUM_THREADS; i++){
-        int comeco = i*TAM_PARTES;
-        int fim = (i+1) * TAM_PARTES;
-        int somaAux = 0;
+int main(void){
 
-        for(int j = comeco; j < fim; j++){
-            vetorGeral.valoresVet[j]*=2;
-            somaAux+=vetorGeral.valoresVet[j];
-        }
-        vetorGeral.somaProcesso[i] = somaAux;
-        somaAux = 0;        
+    for(int i = 0; i < TAM_MAX; i++){
+        vetorGeral[i] = 5;
     }
+    
+    pthread_t threads[NUM_THREADS];
+    int thread_id[NUM_THREADS];
+    int somaTotal,somaSeqTotal = 0;
+    int i;
+    clock_t start_time = clock();
+
+    for(i = 0; i < NUM_THREADS; i++){
+        thread_id[i] = i;
+        pthread_create(&threads[i], NULL, operaVet, &thread_id[i]);
+    }
+
+    for(i = 0; i < NUM_THREADS; i++){
+        int somaAux = 0;
+        pthread_join(threads[i], (void*)&somaAux);
+        somaTotal += somaAux;
+    }
+
+    clock_t end_time = clock();
+    double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+
+    printf("Paralelo\nTamanho Vetor:%d\nNúmero Threads:%d\nSoma Total: %d - Tempo de Execução: %f segundos\n",TAM_MAX, NUM_THREADS, somaTotal, execution_time);
+
+    start_time = clock();
+
+    for(i = 0; i < TAM_MAX; i++){
+        vetorSeqGeral[i] = 5;
+        vetorSeqGeral[i] *= 2;
+        somaSeqTotal += vetorSeqGeral[i];
+    }
+
+    end_time = clock();
+    execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+
+    printf("Sequencial\nTamanhoVetor:%d\nSoma Total: %d - Tempo de Execução: %f segundos\n",TAM_MAX, somaSeqTotal, execution_time);
+
+    return 0; 
+
 }
