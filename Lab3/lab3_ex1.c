@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define TAM_MAX 10000000
-#define NUM_THREADS 100
+#define TAM_MAX 10000
+#define NUM_THREADS 10
 #define TAM_PARTES TAM_MAX / NUM_THREADS
 
 int vetorGeral[TAM_MAX];
@@ -43,7 +43,7 @@ int main(void){
 
     for(i = 0; i < NUM_THREADS; i++){
         int somaAux = 0;
-        pthread_join(threads[i], (void*)&somaAux);
+        pthread_join(threads[i], (void**)&somaAux);
         somaTotal += somaAux;
     }
 

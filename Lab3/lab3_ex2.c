@@ -11,8 +11,10 @@ int vetorGeral[TAM_MAX];
 
 void *operaVet(void *threadID){
     int thread_id = *((int *)threadID);
-    
-    for(int i = 0; i < TAM_PARTES; i++){
+    int comeco  = thread_id * TAM_PARTES;
+    int fim = comeco + TAM_MAX;
+
+    for(int i = comeco; i < fim; i++){
         vetorGeral[i] *= 2;
         vetorGeral[i] += 2;
     }
@@ -27,7 +29,7 @@ int main(void){
     pthread_t threads[NUM_THREADS];
     int thread_id[NUM_THREADS];
     int i;
-    int valorEsperado = (5 * 2) + 2;
+    
 
     for(i = 0; i < NUM_THREADS; i++){
         thread_id[i] = i;
@@ -39,17 +41,15 @@ int main(void){
         pthread_join(threads[i], NULL);
     }
 
+    
+    
     for(i = 0; i < TAM_MAX; i++){
-        if(vetorGeral[i] != valorEsperado){
+        if(vetorGeral[i] != vetorGeral[(TAM_MAX/2)+i]){
             printf("Posicao %d com valor %d diferente do esperado.\n", i, vetorGeral[i]);
             //break;
         }
     }
-    for(i = 0; i < TAM_MAX; i++){
-        if(vetorGeral[i] != valorEsperado){
-            printf("Posicao %d com valor %d diferente do esperado.\n", i, vetorGeral[i]);
-        }
-    }
+    
 
     return 0;
 }
