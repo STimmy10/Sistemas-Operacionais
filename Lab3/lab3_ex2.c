@@ -42,14 +42,20 @@ int main(void){
     }
 
     
-    
-    for(i = 0; i < TAM_MAX; i++){
-        if(vetorGeral[i] != vetorGeral[(TAM_MAX/2)+i]){
-            printf("Posicao %d com valor %d diferente do esperado.\n", i, vetorGeral[i]);
-            //break;
+    int igual = 1;  // Assumimos que todos os valores são iguais
+
+    for (i = 1; i < TAM_MAX; i++) {
+        if (vetorGeral[i] != vetorGeral[i - 1]) {
+            igual = 0;  // Se encontrarmos um valor diferente, definimos igual como 0
+            break;      // Saímos do loop
         }
     }
-    
+
+    if (igual) {
+        printf("Todos os valores do vetor são iguais.\n");
+    } else {
+        printf("Pelo menos um valor do vetor é diferente.\n");
+    }
 
     return 0;
 }
