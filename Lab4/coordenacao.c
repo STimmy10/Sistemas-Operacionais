@@ -5,12 +5,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-void childProcess(char *program) {
-    execvp(program, NULL);
-    perror("execvp");
-    exit(1);
-}
-
 int main() {
     pid_t child1, child2;
     int status;
@@ -19,18 +13,16 @@ int main() {
     child1 = fork();
     if (child1 == 0) {
         // Código do primeiro filho
-        while (1) {
-        printf("Executando filho 1\n");
-    }
+        execvp("./filho1", NULL);
+        perror("execvp");
     }
 
     // Crie o segundo filho
     child2 = fork();
     if (child2 == 0) {
         // Código do segundo filho
-        while (1) {
-        printf("Executando filho 2\n");
-    }
+        execvp("./filho2", NULL);
+        perror("execvp");
     }
 
     // Pai coordena a execução dos filhos
