@@ -1,0 +1,5 @@
+Questão 1-
+    Na primeira execução, com o comando signal, ao apertar ctrl-z, ele chama a função que printa "Voce pressionou Ctrl-C(Num Sinal)", ao inves de terminar o programa, como originalmente ctrl-z faria. Além disso, ele não exibe endereco de memoria manipulado anteriormente. 
+    Ao remover, 
+Questão 2-
+    Não é possível interceptar o sinal SIGKILL, visto que ele é um sinal especial que é enviado para o processo para força-lo a encerrar imediatamente, não podendo ser capturado, manipulado ou ignorado pelo próprio processo.

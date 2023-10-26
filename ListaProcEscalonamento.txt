@@ -1,0 +1,146 @@
+Lista de Processos e Escalonamento - Sistemas Operacionais - Leo Lomardo - 2023.2
+
+1-
+Processo é o conjunto de informações e instruções necessárias para que o sistema operacional implemente a ocorrência de um programa
+
+2-
+Os cinco estados de um processo são: new, running, waiting, ready e terminated.
+As possíveis transições de um processo são separadas em dois grupos:
+	-Voluntárias: Normal e Erro
+	-Involuntárias: Erro fatal e por Sinal emitido por outro processo.
+	
+3-
+Contexto de Hardware é o conjunto de informações de um processo, informações sobre os registradores da CPU, status do processo, registradores específicos, stack pointers.
+A troca de contexto de hardware, consiste em salvar as informações do processo que está rodando no momento, e carregar as informações do novo processo que rodara.
+
+4-
+Espaço de Endereçamento é o conjunto de informações e instruções de um processo, que são armazenados para realizar o processo.
+
+5-
+O sistema implementa um processo através de PCB(Bloco de Controle do Processo), onde o sistema mantém informações sobre o contexto de hardware e contexto de software.
+	Áreas da PCB:	-Ponteiros
+			-Estado do Processo
+			-Nome do Processo
+			-Prioridade do Processo
+			-Registradores
+			-Limite de Memória
+			-Lista de Arquivos Abertos
+			
+6-
+Processo Foreground é um processo, que durante a execução, permite a comunicação direta com o usuário.
+Processo Background é um processo que não existe a comunicação com o usuário durante sua execução.
+
+7-
+Tempo de Processador é a quantidade de tempo que uma CPU vai dedicar para a execução de um processo.
+Tempo de Espera é o tempo que um processo gasta na fila esperando a CPU alocar recursos para sua execução.
+Tempo de Turnaround é o tempo total de execução de um processo, desde o tempo que entrou na fila até sua execução completa
+Tempo de Resposta, se relaciona com o usuário, onde é o tempo total, desde o usuário requisitar algo, até ele ter uma resposta(output)
+	
+8-
+Escalonamento preemptivo, o sistema operacional pode interromper a execução de um processo, a fim de alocar um processo com maior prioridade
+Escalonamento não-preemptivo, o escalonador só é chamado quando um processo finalizou ou foi interrompido
+
+9-
+Escalonamento FIFO(First-In-First-Out) os processo são executados em ordem de chegada, independente da prioridade ou recursos necessários para executar o processo.
+Escalonamento Circular, os processos são executados em ordem de chegada, porém todos recebem uma fatia de tempo da CPU. Caso ultrapassem essa fatia de tempo, o processo é interrompido e vai pro final da fila
+
+10-
+O escalonamento SJF(Shortes Job First), os processos que tem o menor tempo de CPU necessário para terminar sua execução, são executados primeiro.
+Escalonamento por prioridade, cada processo recebe um valor de prioridade, onde os com maior prioridade, quando em estado ready, são executados primeiro. Não existe fatia de tempo de CPU, os processos alocados, só são interrompidos quando um processo com prioridade maior que está na fila, também estiver em estado ready.
+
+11-
+Preempção por tempo, é a interrupção de um processo que ainda não terminou, por utilizar uma fatia de tempo de CPU maior do que a que foi alocada para ele.
+Preempção por prioridade é a interrupção de um processo em execução, devido a um processo com maior prioridade que está na fila ficar em estado ready
+
+12-
+Mecanismo de Escalonamento adaptativo é um conjunto de medidas que o sistema operacional toma, para adaptar as prioridades dos processos, de acordo com os recursos e tempo de execução e e status dos processos em execução, a fim de priorizar certos processos.
+
+13-
+Aplicações de tempo real, exigem uma resposta o mais rápido possível, logo, o melhor tipo de escalonamento é o por prioridade, onde tarefas mais importantes para execução do programa são realizadas primeiro.
+
+14-
+O time slice é a fatia de tempo de CPU atribuida para a execução de um processo.
+Na multiprogramação, onde a CPU consegue executar diversas tarefas simultaneamente, uma fatia de tempo muito pequena aumenta o grau de multiprogramação, visto que a CPU executará mais tarefas em um espaço de tempo, entretanto, também resulta em um alto número de trocas de contexto.
+Já se o time slice for muito grande, terá um grau menor de multiprogramação, visto que executará menos processos em um determinado tempo. Além de que processos muito grande podem monopolizar a CPU, o que pode acarretar em um uso ineficiente da CPU, visto que um processo em execução, pode ser pré requisito para outro processo, atrasando toda a fila.
+
+15-
+	a)	P1-10 seg
+		P2-24 seg
+		P3-29 seg
+		P4-36 seg
+		P5-56 seg
+	
+	b)	P3-5
+		P4-12
+		P1-22
+		P2-36
+		P5-56
+		
+	c)	P3-5
+		P4-12
+		P1-22
+		P2-36
+		P5-56
+	
+	d)	P1-2
+		P2-4
+		P3-6
+		P4-8
+		P5-10
+		
+		P1-12
+		P2-14
+		P3-16
+		P4-18
+		P5-20
+		
+		P1-22
+		P2-24
+		P3-25
+		P4-27
+		P5-29
+		
+		P1-31
+		P2-33
+		P4-34
+		P5-36
+		
+		P1-38
+		P2-40
+		P5-42
+		
+		P2-44
+		P5-46
+		
+		P2-48
+		P5-50
+		
+		P5-56
+		
+16-
+	a)P1 executando
+	b)P2 executando
+	c)P1 executando
+	
+17-
+	a)P1 executando
+	b)P1 executando
+	c)P2 executando
+	
+18-
+	P3-P4-P2-P1
+	
+19-
+	a)85.5
+	b)75.5
+	c)90.5
+	
+20-	Processos	Tempo Faltante	Tempo Total	Tempo CPU 1	Tempo CPU 2
+	P2 e P3 	3 9		   3			3		3
+	P5 e P4		4 8		   6			6		6
+	P1 e P2		7 0		   9			9		9
+	P3 e P5		6 1		  12			12		12
+	P4 e P1		1 4		  15			15		15
+	P3 e P5		3 0		  18			18		16
+	P4 e P1		0 1		  21			19		19
+	P3 e P1		0 0		  24			22		20

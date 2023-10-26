@@ -1,0 +1,34 @@
+Lista Concorrência - Sistemas Operacionais - Leo Lomardo - 2023.2
+
+1-
+Concorrência é a capacidade do processador executar mais de um processo simultaneamente. Com a multiprogramação, a concorrência permite que processos dependentes sejam executados de maneira mais eficiente e rápida.
+
+2-
+É fundamental, pois existem tarefas dependentes uma das outras, a qual uma tarefa em execução, pode necessitar da execução de outra tarefa que está na fila.
+
+3-
+As interrupções ocorrem de maneira de maneira inesperada, solicitada por outro processo, ou pelo escalonador. Quando ela ocorre, as informações do processo interrompido são salvas, e as informações do processo que será executado são carregadas.
+
+4-
+Eventos síncronos e assincronos são formas de lidar com a interrupção de processos. Eventos síncronos são planejados, quando o processo aguarda por uma condição ou instrução específica. Está mais relacionada com interrupção.
+Eventos assíncronos ocorrem ou por erro do hardware ou por uma instrução do próprio processo
+
+5-
+Processo tenta dividir por zero.
+
+6-
+Técnica de interrupção em E/S controladas, utiliza a CPU de maneira mais eficiente, visto que não necessita verificar continuamente o status dos dispositivos de E/S. Na interrupção, o tempo de resposta é menor, visto que a CPU é notificada sobre o status do dispositivo de E/S. Redução de overhead.
+
+7-
+Com o buffering, a concorrência aumenta pois os processos interrompidos terão suas informações salvas no buffer, agilizando o processo de troca de contexto.
+
+8-
+Se o sistema não praticar reentrancia, o sistema utilizará 12000Kb de memória.
+Agora se ele praticar, e todas as aplicações permitirem, o sistema utilizará 1200Kb
+
+9-
+Proteção torna-se fundamental pois diferentes usuários, simultaneamente, acessam a memória do sistema.
+
+10-
+	a)A = 100 e B = 1200
+	b)A = 200 e B = 1100

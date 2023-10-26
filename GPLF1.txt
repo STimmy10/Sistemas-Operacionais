@@ -1,0 +1,71 @@
+Leo Lomardo - 2020201 -GPLF1 - Sistemas Operacionais
+
+Questão1-
+
+int maiusculaStatus = 0;
+
+void interceptaSig1(int signo) {
+    imprimir_maiusculas = 1;
+}
+
+void interceptaSig2(int signo) {
+    printf("Ufa, acabei!\n");
+    exit(0);
+}
+
+int main() {	
+	void(*p)(int);
+	void(*p2)(int);
+	p = signal(SIGUSR1, interceptaSig1);
+	
+
+	FILE *arquivo = fopen("lusiadas.txt", "r");
+	
+
+	char linha[1024];
+
+	while(TRUE){
+		if (imprimir_maiusculas) {
+		    fgets(linha, sizeof(linha), arquivo);
+		    int i;
+		    for (i = 0; linha[i]; i++) {
+			linha[i] = toupper(linha[i]);
+		    }
+		}
+
+		printf("%s", linha);
+		p2 = signal(SIGUSR2, interceptaSig2);
+	}
+
+	fclose(arquivo);
+
+	return 0;
+}
+
+
+Questão 2-
+
+Dealock ocorre quando dois ou mais processos/threads, simultaneamente, não podem realizar sua tarefa por falta de recursos na CPU. Onde um processo necessita dos recursos sendo utilizado por outro processo, e o outro processo necessita dos recursos que estão sendo utilzados no outro processo. Logo, os processos necessitam de recursos que nunca serão liberados.
+
+Questão 3-
+
+O escalonador preemptivo por tempo, ele prioriza os processos que serão finalizadas o mais rápido possível, aumentando a taxa de procesos finalizados por fatia de tempo. Se um processo demorar mais tempo do que a fatia de tempo que foi atribuida a ele, ele é interrompido.
+Já no escalonador preemptivo por prioridade, os processos que possuem mais prioridade, recebem  uma fatia maior de tempo, e, caso elas estejam prontas para serem executadas e não tiver recursos disponíveis, a CPU para um processos de menor prioridade e executa o de maior prioridade.
+
+Questão 4-
+
+Desabilitar todas as interrupções:
+	Desabilitar as interrupções, impede da CPU realizar a comunicação entre processos, fazendo com que possam ter processos interrompidos que não serão ativados novamente.
+
+Acessar diretamente posições do disco:
+	Acessar diretamente posições do disco, acarreta em um acesso direto a memória do computador, que da poder de realizar operações de baixo nível(registradores da cpu)
+
+Questão 5-
+
+a)V. Apesar de ser verdadeiro, deve-se considerar o algoritmo do escalonador, talvez tenha algum processo com maior prioridade na frente, aguardando por esses recursos.
+
+b)V. O sistema monotarefa fica ocioso durante E/S, em uma quantidade muito maior que o sistema multitarefa, porém é importante exxpliticar que o sistema multitarefa também pode ficar ocioso em algum momento, devido aos processos na fila requisitarem mais recursos do que a cpu pode oferecer(exemplo: cpu ta 1%livre, porém o único processo na fila requisita 5% da cpu, ela fica 1% ociosa)
+
+c)V. Pois em um sistema multiprogramável, o processo compete com outros processos que estão em execução, dependendo do algoritmo de escalonamento adotado.
+
+d)Não sei responder

@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define TAM_MAX 10000
-#define NUM_THREADS 10
+#define TAM_MAX 50000
+#define NUM_THREADS 100
 #define TAM_PARTES TAM_MAX / NUM_THREADS
 
 int vetorGeral[TAM_MAX];
