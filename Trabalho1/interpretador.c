@@ -15,7 +15,6 @@ typedef struct {
     int tipo; // 0 para RoundRobin, 1 para RealTime
 } Comando;
 
-
 int main() {
     key_t chave = 7000;
     int segmento;
@@ -25,8 +24,22 @@ int main() {
     char line[100];
     Comando *comandos;
 
-    // Cria a memória compartilhada com a chave 7000
-    segmento = shmget(chave, 1024, IPC_CREAT);
+    // Conta o número total de comandos no arquivo
+    FILE *arquivo = fopen("exec.txt", "r");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        return 1;
+    }
+    while (fgets(line, sizeof(line), arquivo) != NULL) {
+        if (sscanf(line, "Run %*s") == 0) {
+            num_comandos++;
+        }
+    }
+    fclose(arquivo);
+
+    // Cria a memória compartilhada com base no número total de comandos
+    segmento = shmget(chave, num_comandos*sizeof(Comando), IPC_CREAT);
+    printf("Criando a memória compartilhada com chave %d e tamanho %d\n", chave, num_comandos*sizeof(Comando));
     if (segmento == -1) {
         perror("Erro ao criar a memória compartilhada");
         exit(1);
@@ -39,14 +52,13 @@ int main() {
         exit(1);
     }
 
-
-    FILE *arquivo = fopen("exec.txt", "r"); // Abrindo o arquivo em modo de leitura ("r")
-
+    // Lê o arquivo e preenche as estruturas de comando na memória compartilhada
+    arquivo = fopen("exec.txt", "r");
     if (arquivo == NULL) {
         printf("Não foi possível abrir o arquivo.\n");
         return 1;
     }
-
+    int comando_idx = 0;
     while (fgets(line, sizeof(line), arquivo) != NULL) {
         char comando[50];
 
@@ -68,19 +80,21 @@ int main() {
                 novo_comando.tipo = 0; // RoundRobin
             }
 
-            comandos[num_comandos] = novo_comando;
-            num_comandos++;
+            comandos[comando_idx] = novo_comando;
+            comando_idx++;
         }
     }
 
-    // Agora, você tem um array com todos os comandos (RealTime e RoundRobin)
+    // Agora, você tem um array com todos os comandos (RealTime e RoundRobin) na memória compartilhada
     for (int i = 0; i < num_comandos; i++) {
         if (comandos[i].tipo == 1) {
             printf("RealTime - Nome: %s, Início: %d, Duração: %d\n", comandos[i].nome_programa, comandos[i].momento_inicio, comandos[i].tempo_duracao);
-        } else {
+        }
+        else {
             printf("RoundRobin - Nome: %s\n", comandos[i].nome_programa);
         }
     }
+
 
     fclose(arquivo); // Fecha o arquivo quando terminar de usá-lo
 

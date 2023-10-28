@@ -1,32 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
+#include <string.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-// Definir a estrutura do objeto "comando"
 typedef struct {
-    char* nome_programa; // Nome do programa
-    int momento_inicio; // Momento de início
-    int tempo_duracao; // Tempo de duração
-} Comando_RealTime;
+    char nome_programa[50];
+    int momento_inicio;
+    int tempo_duracao;
+    int tipo; // 0 para RoundRobin, 1 para RealTime
+} Comando;
 
-typedef struct {
-    char* nome_programa; // Nome do programa 
-} Comando_RoundRobin;
+int main() {
+    key_t chave = 7000;
+    int segmento;
+    Comando *comandos;
 
-int pid = fork();
+    printf("Escalonador\n");
 
-        if (pid == 0) {
-            printf("AAA\n");
-            char *const args[] = {processo, NULL};
-            execve(processo, args, NULL);
-            perror("execve");
-            exit(1);
+    // Acessa a memória compartilhada com a chave 7000
+    segmento = shmget(chave, 1024, 0666); // Use as mesmas informações de chave e tamanho da memória compartilhada
+    if (segmento == -1) {
+        perror("Erro ao acessar a memória compartilhada");
+        exit(1);
+    }
+
+    // Anexa a memória compartilhada ao processo
+    comandos = (Comando *)shmat(segmento, NULL, 0);
+    if (comandos == (Comando *)-1) {
+        perror("Erro ao anexar a memória compartilhada");
+        exit(1);
+    }
+
+    // Exiba os comandos RealTime e RoundRobin armazenados na memória compartilhada
+    printf("%d bytes de memória compartilhada:\n", segmento);
+    printf("Quantidade de comandos: %d\n", segmento / sizeof(Comando));
+
+    int num_comandos = segmento / sizeof(Comando); // Calcule o número de comandos na memória
+    for (int i = 0; i < num_comandos; i++) {
+        printf("Comando %d:\n", i);
+
+        if (comandos[i].tipo == 1) {
+            printf("Achei um Real time\n");
+            printf("RealTime - Nome: %s, Início: %d, Duração: %d\n", comandos[i].nome_programa, comandos[i].momento_inicio, comandos[i].tempo_duracao);
+        } else {
+            printf("Achei um RoundRobin\n");
+            printf("RoundRobin - Nome: %s\n", comandos[i].nome_programa);
         }
-        sleep(10);
-        printf("Matei o processo do %s\n", processo);
-        kill(pid, SIGKILL);
+    }
+
+    // Libere a memória compartilhada após o uso
+    shmdt(comandos);
+
+    return 0;
+}
