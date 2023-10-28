@@ -15,11 +15,9 @@ int main() {
     key_t chave = 7000;
     int segmento;
     Comando *comandos;
-
-    printf("Escalonador\n");
-
+    
     // Acessa a memória compartilhada com a chave 7000
-    segmento = shmget(chave, 1024, 0666); // Use as mesmas informações de chave e tamanho da memória compartilhada
+    segmento = shmget(chave, 0, 0); // Use as mesmas informações de chave e tamanho da memória compartilhada
     if (segmento == -1) {
         perror("Erro ao acessar a memória compartilhada");
         exit(1);
@@ -32,19 +30,27 @@ int main() {
         exit(1);
     }
 
-    // Exiba os comandos RealTime e RoundRobin armazenados na memória compartilhada
-    printf("%d bytes de memória compartilhada:\n", segmento);
-    printf("Quantidade de comandos: %d\n", segmento / sizeof(Comando));
+    struct shmid_ds shmid_ds;
+    if (shmctl(segmento, IPC_STAT, &shmid_ds) == -1) {
+        perror("Erro ao obter informações do segmento de memória compartilhada");
+        exit(1);
+    }
 
-    int num_comandos = segmento / sizeof(Comando); // Calcule o número de comandos na memória
+
+    int tamanho = (long)(shmid_ds.shm_segsz);
+
+    printf("Tamanho da memória compartilhada: %d bytes\n", tamanho);
+
+    // Exiba os comandos RealTime e RoundRobin armazenados na memória compartilhada
+    printf("Quantidade de comandos: %ld\n", tamanho / sizeof(Comando));
+
+    int num_comandos = tamanho / sizeof(Comando); // Calcule o número de comandos na memória
     for (int i = 0; i < num_comandos; i++) {
         printf("Comando %d:\n", i);
 
         if (comandos[i].tipo == 1) {
-            printf("Achei um Real time\n");
             printf("RealTime - Nome: %s, Início: %d, Duração: %d\n", comandos[i].nome_programa, comandos[i].momento_inicio, comandos[i].tempo_duracao);
         } else {
-            printf("Achei um RoundRobin\n");
             printf("RoundRobin - Nome: %s\n", comandos[i].nome_programa);
         }
     }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -18,8 +19,7 @@ typedef struct {
 int main() {
     key_t chave = 7000;
     int segmento;
-    char *p;
-    char texto[100];
+
     int num_comandos = 0;
     char line[100];
     Comando *comandos;
@@ -35,15 +35,24 @@ int main() {
             num_comandos++;
         }
     }
-    fclose(arquivo);
+    printf("Número total de comandos: %d\n", num_comandos);
+
 
     // Cria a memória compartilhada com base no número total de comandos
-    segmento = shmget(chave, num_comandos*sizeof(Comando), IPC_CREAT);
-    printf("Criando a memória compartilhada com chave %d e tamanho %d\n", chave, num_comandos*sizeof(Comando));
+    segmento = shmget(chave, num_comandos * sizeof(Comando), IPC_CREAT);
     if (segmento == -1) {
         perror("Erro ao criar a memória compartilhada");
         exit(1);
     }
+
+    // Verifica o tamanho do segmento após a criação
+    struct shmid_ds shmid_ds;
+    if (shmctl(segmento, IPC_STAT, &shmid_ds) == -1) {
+        perror("Erro ao obter informações do segmento de memória compartilhada");
+        exit(1);
+    }
+
+    printf("Criando a memória compartilhada com chave %d e tamanho %ld bytes\n", chave, (long)(shmid_ds.shm_segsz));
 
     // Anexa a memória compartilhada ao processo
     comandos = (Comando *)shmat(segmento, NULL, 0);
@@ -94,7 +103,6 @@ int main() {
             printf("RoundRobin - Nome: %s\n", comandos[i].nome_programa);
         }
     }
-
 
     fclose(arquivo); // Fecha o arquivo quando terminar de usá-lo
 
