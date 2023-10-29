@@ -6,13 +6,13 @@
 
 
 typedef struct comando{
-    char nome_programa[10];
+    char nome_programa[46];
     int momento_inicio;
     int tempo_duracao;
-    int tipo; // 0 para RoundRobin, 1 para RealTime
-    pid_t pid;
+    int tipo; // 0 para RoundRobin, 1 para RealTime-
     int index;
 } Comando;
+
 
 typedef struct processoatual{
     int escalonado;

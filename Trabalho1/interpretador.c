@@ -67,7 +67,7 @@ int main() {
     int comando_idx = 0;
 
     while (fgets(line, sizeof(line), arquivo)) {
-        char comando[50];
+        char comando[8];
 
         if (sscanf(line, "Run %s", comando) == 1) {
             Comando novo_comando;
