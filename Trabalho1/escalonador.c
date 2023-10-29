@@ -4,58 +4,53 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-typedef struct {
-    char nome_programa[50];
-    int momento_inicio;
-    int tempo_duracao;
-    int tipo; // 0 para RoundRobin, 1 para RealTime
-} Comando;
+#include "estruturas.h"
 
 int main() {
     key_t chave = 7000;
     int segmento;
     Comando *comandos;
     
-    // Acessa a mem贸ria compartilhada com a chave 7000
-    segmento = shmget(chave, 0, 0); // Use as mesmas informa莽玫es de chave e tamanho da mem贸ria compartilhada
+    // Acessa a memoria compartilhada com a chave 7000
+    segmento = shmget(chave, sizeof(Comandos), IPC_CREAT | 0666); // Use as mesmas informacoes de chave e tamanho da memoria compartilhada
     if (segmento == -1) {
-        perror("Erro ao acessar a mem贸ria compartilhada");
+        perror("Erro ao acessar a memoria compartilhada");
         exit(1);
     }
 
-    // Anexa a mem贸ria compartilhada ao processo
+    // Anexa a memoria compartilhada ao processo
     comandos = (Comando *)shmat(segmento, NULL, 0);
     if (comandos == (Comando *)-1) {
-        perror("Erro ao anexar a mem贸ria compartilhada");
+        perror("Erro ao anexar a memoria compartilhada");
         exit(1);
     }
 
     struct shmid_ds shmid_ds;
     if (shmctl(segmento, IPC_STAT, &shmid_ds) == -1) {
-        perror("Erro ao obter informa莽玫es do segmento de mem贸ria compartilhada");
+        perror("Erro ao obter informacoes do segmento de memoria compartilhada");
         exit(1);
     }
 
 
     int tamanho = (long)(shmid_ds.shm_segsz);
 
-    printf("Tamanho da mem贸ria compartilhada: %d bytes\n", tamanho);
+    printf("Tamanho da memoria compartilhada: %d bytes\n", tamanho);
 
-    // Exiba os comandos RealTime e RoundRobin armazenados na mem贸ria compartilhada
+    // Exiba os comandos RealTime e RoundRobin armazenados na memoria compartilhada
     printf("Quantidade de comandos: %ld\n", tamanho / sizeof(Comando));
 
-    int num_comandos = tamanho / sizeof(Comando); // Calcule o n煤mero de comandos na mem贸ria
+    int num_comandos = tamanho / sizeof(Comando); // Calcule o n鷐ero de comandos na memoria
     for (int i = 0; i < num_comandos; i++) {
         printf("Comando %d:\n", i);
 
         if (comandos[i].tipo == 1) {
-            printf("RealTime - Nome: %s, In铆cio: %d, Dura莽茫o: %d\n", comandos[i].nome_programa, comandos[i].momento_inicio, comandos[i].tempo_duracao);
+            printf("RealTime - Nome: %s, In韈io: %d, Dura玢o: %d\n", comandos[i].nome_programa, comandos[i].momento_inicio, comandos[i].tempo_duracao);
         } else {
             printf("RoundRobin - Nome: %s\n", comandos[i].nome_programa);
         }
     }
 
-    // Libere a mem贸ria compartilhada ap贸s o uso
+    // Libere a memoria compartilhada ap髎 o uso
     shmdt(comandos);
 
     return 0;

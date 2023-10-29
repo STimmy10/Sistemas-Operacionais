@@ -1,13 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <sys/ipc.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
+#include <sys/shm.h>
+#include <sys/time.h>
 
 int main() {
+    
+    pid_t pid = getpid();
+    printf("Programa 3 - pid: %d\n", pid);
     int tempo_execucao = 0;
-    printf("Executando processo 3\n");
+
     while (1) {
         printf("Tempo em execução do processo 3: %d segundos\n", tempo_execucao);
         sleep(1);

@@ -1,0 +1,27 @@
+Passos gerais para a implementação:
+
+Interpretador de Comandos (Interpreter):
+Crie um programa que leia o arquivo "exec.txt" e analise cada linha de comando.
+Identifique se o comando é para execução ROUND-ROBIN ou REAL-TIME.
+Extraia os detalhes do comando, como o nome do programa, o momento de início e o tempo de duração, se aplicável.
+Utilize algum mecanismo de comunicação inter-processo, como memória compartilhada, para passar esses dados para o escalonador.
+
+Escalonador (Scheduler):
+Implemente um escalonador capaz de lidar com ambas as políticas de escalonamento ROUND-ROBIN e REAL-TIME.
+Crie filas de prontos separadas para processos ROUND-ROBIN e REAL-TIME.
+Implemente a lógica de escalonamento para dar prioridade a processos REAL-TIME sobre ROUND-ROBIN.
+O escalonador deve iniciar os programas de acordo com os comandos recebidos do interpretador, garantindo que eles sejam executados na ordem correta.
+Monitore o tempo e suspenda ou retome a execução dos programas conforme necessário.
+
+Programas de Teste:
+Crie programas de teste que são CPU-bound (loops eternos) para serem escalonados pelo escalonador.
+Esses programas devem ser iniciados pelo escalonador quando receberem um comando do interpretador.
+
+Saída do Escalonador:
+A saída do escalonador deve ser clara o suficiente para mostrar como e por que ocorre a preempção na execução dos processos.
+Mostre as filas de prontos a cada preempção, indicando qual processo parou de executar e qual processo passou a executar.
+
+Relatório:
+Prepare um relatório em formato PDF que inclui as informações necessárias, como os programas de teste que serão executados, instruções para compilação, a ordem de entrada para o escalonador e a ordem de execução determinada pelo escalonador.
+Inclua uma análise crítica sobre o que ocorreu durante a execução, como se a ordem de execução dos programas foi a esperada, e quaisquer problemas ou desafios que enfrentou durante a implementação.
+
