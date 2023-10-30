@@ -11,6 +11,7 @@ typedef struct comando{
     int tempo_duracao;
     int tipo; // 0 para RoundRobin, 1 para RealTime-
     int index;
+    int pid;
 } Comando;
 
 

@@ -23,6 +23,9 @@ void inicializarFila(FilaComandos *fila) {
 }
 
 void adicionarComando(FilaComandos *fila, Comando comando) {
+    printf("Adicionando comando %s à fila de comandos\n", comando.nome_programa);
+    comando.pid = fork();
+    signal(comando.pid, SIGSTOP);
     if (fila->tamanho < MAX_COMANDOS) {
         fila->comandos[fila->tamanho] = comando;
         fila->tamanho++;
@@ -37,8 +40,15 @@ int main() {
     FilaComandos fila;
     int rodando = 0;
     pid_t pid_filho;
+    Comando* comando_atual;
+
     // Inicializa a fila de comandos
     inicializarFila(&fila);
+
+    // Variáveis para obter o tempo atual
+    time_t tempo_atual;
+    struct tm* info_tempo;
+    int segundos_atuais;
 
     // Cria ou obtém a fila de mensagens com a mesma chave
     fila_mensagens = msgget(chave, 0666);
@@ -46,60 +56,54 @@ int main() {
         perror("Erro ao acessar a fila de mensagens");
         exit(1);
     }
+
     rodando = 1;
-    signal (SIGALRM, rodando == 0);
-    alarm (12);
-    while (rodando) {
+
+    printf("Escalonador iniciado\n");
+
+    while (1) {
         Comando mensagem;
         
+        time(&tempo_atual);
+        info_tempo = localtime(&tempo_atual);
+        segundos_atuais = info_tempo->tm_sec;
+
+        printf("segundos_atuais: %d\n", segundos_atuais);
+        printf("vou receber mensagem\n");
+
         // Recebe mensagens da fila de mensagens
         if (msgrcv(fila_mensagens, &mensagem, sizeof(Comando), 0, 0) == -1) {
             perror("Erro ao receber mensagem da fila de mensagens");
             exit(1);
         }
+        
+        printf("Recebi mensagem\n");
 
         // Adiciona o comando à fila de comandos
         adicionarComando(&fila, mensagem);
+        
+        // Percorrendo a fila de comandos:
+        if (segundos_atuais == 0) {
+            printf("A fila de comandos está vazia.\n");
+        }
 
-        if(mensagem.tipo == REAL_TIME){ // RealTime
-            // Cria um processo filho para executar o comando
-            pid_t pid_filho = fork();
-            if (pid_filho == 0) {
-                // Processo filho
-                printf("Executando o comando %s por %d segundos\n", mensagem.nome_programa, mensagem.tempo_duracao);
-                execl(mensagem.nome_programa, mensagem.nome_programa, NULL);
-                exit(0);
+        for (int i = 0; i < fila.tamanho; i++) {
+            if(fila.comandos[i].tipo == REAL_TIME && segundos_atuais == fila.comandos[i].momento_inicio){
+                //rodando os comandos RealTime
+                comando_atual = &fila.comandos[i];
+                signal(fila.comandos[i].pid, SIGCONT);
+                sleep(fila.comandos[i].tempo_duracao);
+                signal(fila.comandos[i].pid, SIGSTOP);
             } else {
-                // Processo pai
-                // Aguarda o tempo de execução do comando
-                sleep(mensagem.tempo_duracao);
-                // Termina o processo filho
-                kill(pid_filho, 9);
-            }
-        } else { // RoundRobin
-            // Cria um processo filho para executar o comando
-            pid_t pid_filho = fork();
-            if (pid_filho == 0) {
-                // Processo filho
-                printf("Executando o comando %s\n", mensagem.nome_programa);
-                execl(mensagem.nome_programa, mensagem.nome_programa, NULL);
-                exit(0);
-            } else {
-                // Processo pai
-                // Aguarda o tempo de execução do comando
-                sleep(10);
-                // Termina o processo filho
-                kill(pid_filho, 9);
+                //rodando os comandos RoundRobin
+                comando_atual = &fila.comandos[i];
+                signal(fila.comandos[i].pid, SIGCONT);
+                sleep(1);
+                signal(fila.comandos[i].pid, SIGSTOP);
             }
         }
     }
 
     printf("Tempo de execucao do escalonador esgotado\n");
-    kill(pid_filho, SIGKILL);
-
-    for (int i = 0; i < fila.tamanho; i++) {
-        printf("Comando %s\n", fila.comandos[i].nome_programa);
-    }
-
     return 0;
 }
