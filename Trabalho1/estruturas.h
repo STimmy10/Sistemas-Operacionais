@@ -19,3 +19,8 @@ typedef struct processoatual{
     int escalonado;
     Comando proc;
 }ProcessoAtual;
+
+typedef struct mensagem{
+    long tipo;
+    Comando comando;
+} Mensagem;

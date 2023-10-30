@@ -10,126 +10,120 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include "estruturas.h"
+#include <semaphore.h>
 
-void rodaProcesso(Comando p, pid_t* pid);
-char* montaComando(const char* str1, const char* str2);
-Comando *comandos;
-Comando *comandos_em_execucao;
-int comandos_em_execucao_tamanho = 0;
+#define MAX_COMANDOS 100
+int rodando = 1;
 
-void paraEscalonador(int signal){
+typedef struct {
+    Comando comandos[MAX_COMANDOS];
+    int tamanho;
+} FilaComandos;
+
+void trataAlarme(int signum){
     printf("Tempo de execucao do escalonador esgotado\n");
-    for (int i = 0; i < comandos_em_execucao_tamanho; i++){
-        kill(comandos_em_execucao[i].index, SIGKILL);
-        printf("Terminei de executar o programa %s\n", comandos_em_execucao[i].nome_programa);
+    rodando = 0;
+}
+
+sem_t fila_mutex; // Declare um semáforo para proteger a fila
+
+void inicializarFila(FilaComandos *fila) {
+    fila->tamanho = 0;
+    sem_init(&fila_mutex, 0, 1); // Inicializa o semáforo com um recurso
+}
+
+void adicionarComando(FilaComandos *fila, Comando comando) {
+    if(comando.tipo == REAL_TIME && comando.momento_inicio+comando.tempo_duracao > 60){
+        printf("Comando RealTime ultrapassaria do minuto e não foi adicionado à fila.\n");
+        return;
     }
-    exit(0);
+    
+    printf("Adicionando comando %s à fila de comandos\n", comando.nome_programa);
+    comando.pid = fork();
+    if (comando.pid == 0) {
+        // Processo filho
+        execve(comando.nome_programa, NULL, NULL);
+        perror("Erro ao executar o comando");
+        signal(comando.pid, SIGSTOP);
+        exit(1);
+    } else if (comando.pid > 0) {
+        // Processo pai
+        sem_wait(&fila_mutex); // Bloqueia o semáforo para atualizar a fila
+        fila->comandos[fila->tamanho] = comando;
+        fila->tamanho++;
+        sem_post(&fila_mutex); // Libera o semáforo após a atualização
+    } else {
+        perror("Erro ao criar o processo filho");
+    }
 }
 
 int main() {
     key_t chave = 7000;
-    int segmento;
+    int fila_mensagens;
+    FilaComandos fila;
+    Comando* comando_atual;
 
+    // Inicializa a fila de comandos
+    inicializarFila(&fila);
 
+    // Variáveis para obter o tempo atual
     time_t tempo_atual;
     struct tm* info_tempo;
     int segundos_atuais;
-    
-    // Acessa a memoria compartilhada com a chave 7000
-    segmento = shmget(chave, 0, 0); // Use as mesmas informa��es de chave e tamanho da memoria compartilhada
-    if (segmento == -1) {
-        perror("Erro ao acessar a memoria compartilhada");
+
+    // Cria ou obtém a fila de mensagens com a mesma chave
+    fila_mensagens = msgget(chave, 0666);
+    if (fila_mensagens == -1) {
+        perror("Erro ao acessar a fila de mensagens");
         exit(1);
     }
 
-    // Anexa a memoria compartilhada ao processo
-    comandos = (Comando *)shmat(segmento, NULL, 0);
-    if (comandos == (Comando *)-1) {
-        perror("Erro ao anexar a memoria compartilhada");
-        exit(1);
-    }
+    printf("Escalonador iniciado\n");
 
-    struct shmid_ds shmid_ds;
-    if (shmctl(segmento, IPC_STAT, &shmid_ds) == -1) {
-        perror("Erro ao obter informacoes do segmento de memoria compartilhada");
-        exit(1);
-    }
+    signal (SIGALRM, trataAlarme);
+    alarm (120);
 
 
-    int tamanho = (long)(shmid_ds.shm_segsz);
+    while (rodando) {
+        sleep(1);
+        Comando mensagem;
+        if (msgrcv(fila_mensagens, &mensagem, sizeof(mensagem), 0, IPC_NOWAIT) != -1) {
+            // Recebeu uma mensagem
+            printf("Recebeu um comando\n");
+            adicionarComando(&fila, mensagem);
+            }
 
-    comandos_em_execucao = (Comando *)malloc(tamanho*sizeof(Comando));
-
-    printf("Tamanho da memoria compartilhada: %d bytes\n", tamanho);
-
-    // Exiba os comandos RealTime e RoundRobin armazenados na memoria compartilhada
-    printf("Quantidade de comandos: %ld\n", tamanho / sizeof(Comando));
-
-    int num_comandos = tamanho / sizeof(Comando); // Calcule o n�mero de comandos na memoria
-    for (int i = 0; i < num_comandos; i++) {
-        if (comandos[i].tipo == 1) {
-            printf("RealTime - Nome: %s, Inicio: %d, Duracao: %d\n", comandos[i].nome_programa, comandos[i].momento_inicio, comandos[i].tempo_duracao);
-        } else {
-            printf("RoundRobin - Nome: %s\n", comandos[i].nome_programa);
-        }
-    }
-
-    // Crie um processo filho para cada comando armazenado na memoria compartilhada
-    pid_t pid;
-    rodaProcesso(comandos[0], &pid);
-    comandos_em_execucao[comandos_em_execucao_tamanho] = comandos[0];
-    comandos_em_execucao_tamanho++;
-
-
-    signal (SIGALRM, paraEscalonador);
-    alarm(10);
-
-
-    while(1){
         time(&tempo_atual);
         info_tempo = localtime(&tempo_atual);
         segundos_atuais = info_tempo->tm_sec;
-        printf("Segundos atuais: %d\n", segundos_atuais);
-        sleep(1);
+
+        for (int i = 0; i < fila.tamanho; i++) {
+            if (fila.comandos[i].tipo == REAL_TIME) {
+                time(&tempo_atual);
+                int diferenca_tempo = fila.comandos[i].momento_inicio - tempo_atual;
+                if (diferenca_tempo <= 0) {
+                    // É hora de executar o comando RealTime
+                    comando_atual = &fila.comandos[i];
+                    signal(fila.comandos[i].pid, SIGCONT);
+                    sleep(fila.comandos[i].tempo_duracao);
+                    signal(fila.comandos[i].pid, SIGSTOP);
+                    }
+            } else if (fila.comandos[i].tipo == ROUND_ROBIN) {
+                // Rodando os comandos RoundRobin
+                printf("Sem nada de maior prioridade, rodando round robin\n");
+                comando_atual = &fila.comandos[i];
+                signal(fila.comandos[i].pid, SIGCONT);
+                sleep(1);
+                signal(fila.comandos[i].pid, SIGSTOP);
+            }
+            sleep(1);
+        }
+
     }
 
-    // Libere a memoria compartilhada ap�s o uso
-    shmdt(comandos);
+    for (int i = 0; i < fila.tamanho; i++) {
+        kill(fila.comandos[i].pid, SIGKILL);
+    }
 
     return 0;
-}
-
-void rodaProcesso(Comando p, pid_t* pid){
-	char inicioPath[] = "./";
-	char *path;
-
-	path = montaComando(inicioPath, p.nome_programa);
-	
-	char *argv[] = {NULL};
-	
-	if(fork() == 0){
-		pid = getpid();
-		printf("pid no escalonador = %d\n", pid);
-		printf("Iniciando o programa %s\n", path);
-		execvp(path, argv);
-	} 
-	return;
-}
-
-char* montaComando(const char* str1, const char* str2) {
-	int tamanhoStr1 = strlen(str1);
-	int tamanhoStr2 = strlen(str2);
-	int tamanhoTotal = tamanhoStr1 + tamanhoStr2 + 1; //adiciona /n
-
-	char* resultado = (char*)malloc(tamanhoTotal);
-
-	if (resultado == NULL) {
-		perror("Erro ao alocar memoria");
-		exit(1);
-	}
-
-	strcpy(resultado, str1);
-	strcat(resultado, str2);
-
-	return resultado;
 }

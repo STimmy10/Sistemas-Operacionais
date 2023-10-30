@@ -12,7 +12,7 @@ int main() {
     int tempo_execucao = 0;
 
     while (1) {
-        printf("Tempo em execução do processo 3: %d segundos\n", tempo_execucao);
+        printf("Tempo em execução do processo 2: %d segundos\n", tempo_execucao);
         sleep(1);
         tempo_execucao++;
     }
