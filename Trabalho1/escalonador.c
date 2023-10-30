@@ -93,7 +93,7 @@ int main() {
     struct tm* info_tempo;
     int segundos_atuais;
 
-    // Cria ou obtém a fila de mensagens com a mesma chave
+    // Comunicando com o escalonador
     fila_mensagens = msgget(chave, 0666);
     if (fila_mensagens == -1) {
         perror("Erro ao acessar a fila de mensagens");

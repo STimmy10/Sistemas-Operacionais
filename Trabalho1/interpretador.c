@@ -66,7 +66,7 @@ int main() {
             comandos[comando_idx] = novo_comando;
             comando_idx++;
 
-            // Envie o comando para o escalonador através da fila de mensagens
+            // Envia o comando para o escalonador através da fila de mensagens
             if (msgsnd(fila_mensagens, &novo_comando, sizeof(Comando), 0) == -1) {
                 perror("Erro ao enviar mensagem para o escalonador");
                 exit(1);
