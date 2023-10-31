@@ -7,12 +7,10 @@
 
 int main() {
     
-    pid_t pid = getpid();
-    printf("Programa 1 - pid: %d\n", pid);
     int tempo_execucao = 0;
 
     while (1) {
-        printf("Tempo em execução do processo 3: %d segundos\n", tempo_execucao);
+        printf("Tempo em execução do processo 1: %d segundos\n", tempo_execucao);
         sleep(1);
         tempo_execucao++;
     }

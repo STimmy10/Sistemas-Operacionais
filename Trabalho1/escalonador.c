@@ -13,6 +13,8 @@
 #include <semaphore.h>
 
 #define MAX_COMANDOS 100
+#define REAL_TIME 1
+#define ROUND_ROBIN 0
 int rodando = 1;
 
 typedef struct {
@@ -65,11 +67,11 @@ void adicionarComando(FilaComandos *fila, Comando comando) {
         // Processo filho
         execve(comando.nome_programa, NULL, NULL);
         perror("Erro ao executar o comando");
-        sleep(1);
-        signal(comando.pid, SIGSTOP);
+        kill(comando.pid, SIGSTOP);
         exit(1);
     } else if (comando.pid > 0) {
         // Processo pai
+        kill(comando.pid, SIGSTOP);
         sem_wait(&fila_mutex); // Bloqueia o semáforo para atualizar a fila
         fila->comandos[fila->tamanho] = comando;
         fila->tamanho++;
@@ -107,7 +109,6 @@ int main() {
 
 
     while (rodando) {
-        sleep(1);
         Comando mensagem;
         if (msgrcv(fila_mensagens, &mensagem, sizeof(mensagem), 0, IPC_NOWAIT) != -1) {
             // Recebeu uma mensagem
@@ -121,39 +122,43 @@ int main() {
 
         int executando_real_time = 0;
 
+        
         for (int i = 0; i < fila.tamanho; i++) {
             time(&tempo_atual);
             info_tempo = localtime(&tempo_atual);
             segundos_atuais = info_tempo->tm_sec;
             if (fila.comandos[i].tipo == REAL_TIME) {
                 time(&tempo_atual);
+                info_tempo = localtime(&tempo_atual);
                 segundos_atuais = info_tempo->tm_sec;
-                int diferenca_tempo = fila.comandos[i].momento_inicio - segundos_atuais;
-                if (diferenca_tempo <= 0 && diferenca_tempo >= -1) {
+                
+                if (fila.comandos[i].momento_inicio == segundos_atuais) {
+                    printf("Segundos atuais coincidem com inicio: %d\n", segundos_atuais);
+                    printf("Executando comando RealTime %s por %d segundos\n", fila.comandos[i].nome_programa, fila.comandos[i].tempo_duracao);
                     sem_wait(&exec_mutex); // Bloqueia o semáforo de execução
-                    printf("Segundo de início: %d - segundo atual: %d \n", fila.comandos[i].momento_inicio, segundos_atuais);
-                    printf("Diferença de tempo: %d\n", abs(diferenca_tempo));
                     // É hora de executar o comando RealTime
                     executando_real_time = 1;
-                    signal(fila.comandos[i].pid, SIGCONT);
+                    kill(fila.comandos[i].pid, SIGCONT);
                     sleep(fila.comandos[i].tempo_duracao);
-                    signal(fila.comandos[i].pid, SIGSTOP);
+                    kill(fila.comandos[i].pid, SIGSTOP);
                     sem_post(&exec_mutex); // Libera o semáforo de execução
                     }
             } else if (fila.comandos[i].tipo == ROUND_ROBIN && executando_real_time == 0) {
+                printf("Segundos atuais: %d\n", segundos_atuais);
+                printf("Executando comando RoundRobin %s\n", fila.comandos[i].nome_programa);
                 sem_wait(&exec_mutex); // Bloqueia o semáforo de execução
                 // Rodando os comandos RoundRobin
-                signal(fila.comandos[i].pid, SIGCONT);
+                kill(fila.comandos[i].pid, SIGCONT);
                 sleep(1);
-                signal(fila.comandos[i].pid, SIGSTOP);
+                kill(fila.comandos[i].pid, SIGSTOP);
                 sem_post(&exec_mutex); // Libera o semáforo de execução
             }
-            sleep(1);
+
             for(int j = 0; j < fila.tamanho; j++){
                 pararComando(&fila.comandos[j]);
             }
-            executando_real_time = 0;
         }
+            executando_real_time = 0;
 
     }
 

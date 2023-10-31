@@ -7,8 +7,6 @@
 
 int main() {
     
-    pid_t pid = getpid();
-    printf("Programa 2 - pid: %d\n", pid);
     int tempo_execucao = 0;
 
     while (1) {
