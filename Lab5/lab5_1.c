@@ -26,31 +26,34 @@ int main(void){
     */
     if(sem_Geral == -1){
         perror("sem_open");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     if (ftruncate(sem_Geral, BUFFER_SIZE) == -1) {
         perror("ftruncate");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     sem1 = sem_open(SEM_NAME1, O_CREAT, 0666, 0);
     if (sem1 == SEM_FAILED) {
         perror("sem_open1");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     sem2 = sem_open(SEM_NAME2, O_CREAT, 0666, 0);
     if (sem2 == SEM_FAILED) {
         perror("sem_open2");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     sharedMem_ptr = mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, sem_Geral,0 );
-
+    if (sharedMem_ptr == MAP_FAILED) {
+        perror("mmap");
+        exit(EXIT_FAILURE);
+    }
     pid_t pid = fork();
 
     if(pid == -1){
         perror("Process Error");
-        exit(1);
+        exit(EXIT_FAILURE);
     }else if(pid ==0){ //processo filho
 
         for(count =  0; count < NUM_MENS; count++){
@@ -69,15 +72,16 @@ int main(void){
             sem_wait(sem2);
         }
     }   
+    
+    munmap(sharedMem_ptr, BUFFER_SIZE); //Libera memoria compartilhada alocada
+    close(sem_Geral);
+    sem_unlink(SEM_GERAL);
+
     sem_close(sem1);
     sem_unlink(SEM_NAME1);
 
     sem_close(sem2);
     sem_unlink(SEM_NAME2);
-
-    close(sem_Geral);
-
-    munmap(sharedMem_ptr, BUFFER_SIZE); //Libera memoria compartilhada alocada
 
     return 0;
 }
