@@ -16,7 +16,7 @@
 #define SEM_GERAL "/sem_Geral1"
 
 typedef struct {
-    char buffer[MAX_MEN_NUM][15];
+    char buffer[MAX_MEN_NUM][80];
     int read_index;
     int write_index;
 } shared_data;
