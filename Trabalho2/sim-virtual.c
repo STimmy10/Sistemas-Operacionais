@@ -1,3 +1,6 @@
+//Aluno: Lucas Daibes Rachid de Lucena -2010796
+//Aluno: Leo Lomardo - 2020201
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -6,8 +9,8 @@
 
 typedef struct pageframe{
     int page_id; 
-    int foi_modificada;
-    int foi_referenciada;
+    int M;
+    int R;
     int timeIn;
 }PF;  
 
@@ -25,8 +28,8 @@ PF* create_pf(int pageSize, int totalMainMem){
 
     for(int i = 0; i<size; i++){
         memoria[i].page_id = -1;
-        memoria[i].foi_modificada = 0;
-        memoria[i].foi_referenciada = 0;
+        memoria[i].M = 0;
+        memoria[i].R = 0;
         memoria[i].timeIn = 0;
     }
 
@@ -92,13 +95,13 @@ int LRU(PF *pt, int tam_pf){
 
     for(int i = 0; i < tam_pf; i++){
         if(menos_referenciada != -1){
-            if(pt[i].foi_referenciada < menos_referenciada){
-                menos_referenciada = pt[i].foi_referenciada;
+            if(pt[i].R < menos_referenciada){
+                menos_referenciada = pt[i].R;
                 target_index = i;
             }
 
         }else{
-            menos_referenciada = pt[i].foi_referenciada;
+            menos_referenciada = pt[i].R;
             target_index = i;
         }
     }
@@ -158,7 +161,7 @@ void go_simulator(int totalMemory, int pageSize, char **argv){
                 pf[next_insert].timeIn = time;
                 
                 if(rw == 'W'){
-                    pf[next_insert].foi_modificada = 1;
+                    pf[next_insert].M = 1;
                     countPageW++;
                 }
             }
@@ -168,12 +171,12 @@ void go_simulator(int totalMemory, int pageSize, char **argv){
                 pf[qg].timeIn = time;
 
                 if(rw == 'W'){
-                    pf[qg].foi_modificada = 1;
+                    pf[qg].M = 1;
                     countPageW++;
                 }
             }
         }else{
-            pf[pt[pageTableIndex].frame_index].foi_referenciada++;
+            pf[pt[pageTableIndex].frame_index].R++;
         }
     }
     time++;

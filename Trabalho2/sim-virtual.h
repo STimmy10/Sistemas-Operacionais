@@ -1,3 +1,5 @@
+//Aluno: Lucas Daibes Rachid de Lucena -2010796
+//Aluno: Leo Lomardo - 2020201
 
 typedef struct page Page;
 typedef struct pageframe PF;

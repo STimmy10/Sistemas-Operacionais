@@ -2,6 +2,7 @@
     "files.associations": {
         "wait.h": "c",
         "time.h": "c",
-        "estruturas.h": "c"
+        "estruturas.h": "c",
+        "sim-virtual.h": "c"
     }
 }

@@ -1,11 +1,14 @@
+//Aluno: Lucas Daibes Rachid de Lucena -2010796
+//Aluno: Leo Lomardo - 2020201
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "simulador.h"
+#include "sim-virtual.h"
 
 
 int main (int args, char* argv[]){
     if(args != 5){
-        perror("Quantidade de argumentos inválida.");
+        perror("Quantidade de argumentos invalida.");
         exit(1);
     }
 
