@@ -9,18 +9,16 @@
 
 typedef struct pageframe{
     int idPage; 
-    int M;
-    int R;
+    int M; //modificado
+    int R; //referenciado
     int timeIn;
 }PF;  
 
 typedef struct page{
     int frameIndex; 
 }Page;
-
  
 PF* createPageFrame(int pageSize, int totalMainMem){ 
-
     int size = (totalMainMem * 1024) / pageSize;
     printf("total de itens na page frame: %d\n",size);
 
@@ -32,12 +30,10 @@ PF* createPageFrame(int pageSize, int totalMainMem){
         memoria[i].R = 0;
         memoria[i].timeIn = 0;
     }
-
     return memoria;
 }
 
 Page* createPageTable(int pageSize){ 
- 
     int totalPages = pow(2, 32 - (int)(ceil(log2(pageSize * 1024))));
     
     Page* pageTable = (Page*) malloc(sizeof(Page) * totalPages);
@@ -45,12 +41,10 @@ Page* createPageTable(int pageSize){
     for(int i = 0; i<totalPages; i++){
         pageTable[i].frameIndex = -1;
     }
-
     return pageTable;
 }
 
 int findNextIns(PF *pf, int size){ 
-
     for(int i =0; i< size; i++){
         if(pf[i].idPage == -1){
             return i;
@@ -78,14 +72,13 @@ int NRU(PF *pf, int pfSize){
     return target_index;
 }
 
-
 int swap(PF *pf, Page *pt, int PTIndexOld, int PTIndexNew){
 
-    int qg = pt[PTIndexOld].frameIndex; 
+    int newIndice = pt[PTIndexOld].frameIndex; 
     pt[PTIndexOld].frameIndex = -1;
-    pt[PTIndexNew].frameIndex = qg;
+    pt[PTIndexNew].frameIndex = newIndice;
 
-    return qg;
+    return newIndice;
 }
 
 int LRU(PF *pt, int pfSize){
@@ -99,7 +92,6 @@ int LRU(PF *pt, int pfSize){
                 menos_referenciada = pt[i].R;
                 target_index = i;
             }
-
         }else{
             menos_referenciada = pt[i].R;
             target_index = i;
@@ -117,15 +109,12 @@ int changePage(PF *pf, Page* pt, int pfSize, char* criterio, int incertIndex){
     }
     else if(strcmp(criterio,"NRU") == 0){
         target_index = NRU(pf,pfSize);
-    }
-    else{
+    }else{
         perror("ALGORITMO INVALIDO");
         exit(1);
     }
-
     return swap(pf,pt,target_index,incertIndex); 
 }
-
 
 void simVirtual(int totalMemory, int pageSize, char **argv){ 
     unsigned int pageTableIndex, addr; 
@@ -166,12 +155,12 @@ void simVirtual(int totalMemory, int pageSize, char **argv){
                 }
             }
             else{
-                int qg = changePage(pf,pt,pfSize,argv[1],pageTableIndex);
-                pf[qg].idPage = addr;
-                pf[qg].timeIn = time;
+                int newIndice = changePage(pf,pt,pfSize,argv[1],pageTableIndex);
+                pf[newIndice].idPage = addr;
+                pf[newIndice].timeIn = time;
 
                 if(rw == 'W'){
-                    pf[qg].M = 1;
+                    pf[newIndice].M = 1;
                     countPageW++;
                 }
             }

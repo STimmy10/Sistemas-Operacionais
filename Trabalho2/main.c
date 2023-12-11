@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include "sim-virtual.h"
 
-
 int main (int args, char* argv[]){
     if(args != 5){
         perror("Quantidade de argumentos invalida.");
