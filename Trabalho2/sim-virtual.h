@@ -4,9 +4,9 @@
 typedef struct page Page;
 typedef struct pageframe PF;
 
-int find_next_insert(PF *pf, int size);
-int NRU(PF *pf, int tam_pf);
-int swap(PF *pf, Page *pt, int old_pt_index, int new_pt_index);
-int LRU(PF *pt, int tam_pf);
-int troca_de_paginas(PF *pf, Page* pt, int tam_pf, char* criterio, int to_insert_index);
-void go_simulator(int totalMemory,int pageSize, char **argv);
+int findNextIns(PF *pf, int size);
+int NRU(PF *pf, int pfSize);
+int swap(PF *pf, Page *pt, int PTIndexOld, int PTIndexNew);
+int LRU(PF *pt, int pfSize);
+int changePage(PF *pf, Page* pt, int pfSize, char* criterio, int incertIndex);
+void simVirtual(int totalMemory,int pageSize, char **argv);

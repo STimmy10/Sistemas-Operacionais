@@ -20,7 +20,7 @@ int main (int args, char* argv[]){
     printf("Tamanho das paginas: %s KB\n",argv[3]);
     printf("Algoritmo de substituicao: %s\n",argv[1]);
 
-    go_simulator(totalMem, pageSize,argv);
+    simVirtual(totalMem, pageSize,argv);
 
 
     return 0;
